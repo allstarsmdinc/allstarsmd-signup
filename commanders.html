@@ -270,6 +270,20 @@
 </div>
 <script>
   var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxa_-YK3i8NeitxSvJnUCTaOkU9QkVXuevsbSTDBtJM-OGgD0wGNN2VeEgWyV5ID8laIA/exec";
+  var BANNED_NAMES=["tierra whitehead","janel diaz","candie thompson","antoine nailing","ashley wright","tara fisher","camisha amaker","manuela ross","charmae jackson","jewel samuel","kirk samuel","lauren green","tanisha dozier","robin mendez","janee hill","camille cranson","lauren hamilton","melissa runge","tiara pelham","amanda matthews","madison dennis","greg madrigal","raquel madrigal","breona gasque","angela emory","kasey mundell","elizabeth mclaughlin","enoch anderson","kurt meyers","katora walker","junita reeder"];
+  function editDist(a,b){var m=a.length,n=b.length,d=[];for(var i=0;i<=m;i++){d[i]=[i];for(var j=1;j<=n;j++)d[i][j]=i===0?j:0;}for(var i=1;i<=m;i++)for(var j=1;j<=n;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[m][n];}
+  function normalize(s){return s.toLowerCase().replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim();}
+  function isBanned(f,l){
+    var full=normalize(f+" "+l);
+    for(var i=0;i<BANNED_NAMES.length;i++){
+      var bn=BANNED_NAMES[i];
+      if(full===bn)return true;
+      if(full.length>=6&&bn.length>=6&&editDist(full,bn)<=2)return true;
+      var fp=normalize(f),lp=normalize(l),parts=bn.split(" ");
+      if(parts.length>=2&&editDist(fp,parts[0])<=1&&editDist(lp,parts[parts.length-1])<=1)return true;
+    }
+    return false;
+  }
   function toggleUpdate() { var chk = document.getElementById("is-update"); chk.checked = !chk.checked; }
   function toggle(card) { var chk = card.querySelector(".evt-chk"); chk.checked = !chk.checked; card.classList.toggle("selected", chk.checked); syncSelectAll(); }
   function cardSync(chk) { chk.closest(".event-card").classList.toggle("selected", chk.checked); syncSelectAll(); }
@@ -278,6 +292,7 @@
   function submitForm() {
     var fields = ["fname","lname","email","phone","youth","org-name","org-addr","org-city","org-state","org-zip","shirt","age18"];
     for (var i = 0; i < fields.length; i++) { if (!document.getElementById(fields[i]).value.trim()) { alert("Please fill out all required fields before submitting."); return; } }
+    if(isBanned(document.getElementById("fname").value.trim(),document.getElementById("lname").value.trim())){alert("We are unable to process your registration. Please contact AllStars MD directly for more information.");return;}
     var selected = document.querySelectorAll(".evt-chk:checked");
     if (selected.length === 0) { alert("Please select at least one game."); return; }
     var isUpdate = document.getElementById("is-update").checked;
